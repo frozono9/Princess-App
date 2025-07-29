@@ -101,39 +101,38 @@ struct HomeScreenView: View {
 // MARK: - Widget Screen View
 struct WidgetScreenView: View {
     var body: some View {
-        VStack(spacing: 20) {
-            // Re-using existing widgets for demonstration
-            HStack(spacing: 12) {
-                WeatherWidget(selectedCity: "London")
-                CalendarWidget()
+        VStack(spacing: 15) {
+            // 10-app grid
+            // Row 1: 4 apps
+            HStack(spacing: 25) {
+                AppIcon(name: "Amazon", imageName: "amazon-icon")
+                AppIcon(name: "Stocks", imageName: "stocks-icon")
+                AppIcon(name: "Passwords", imageName: "passwords-icon")
+                AppIcon(name: "McDonalds", imageName: "mcdonalds-icon")
             }
-            .padding(.horizontal, 20)
-
-            HStack(spacing: 12) {
-                // Placeholder for another widget
-                Rectangle()
-                    .fill(Color.green.opacity(0.7))
-                    .frame(width: 155, height: 155)
-                    .cornerRadius(20)
-                    .overlay(Text("Stocks Widget").foregroundColor(.white))
-
-                // Placeholder for another widget
-                Rectangle()
-                    .fill(Color.orange.opacity(0.7))
-                    .frame(width: 155, height: 155)
-                    .cornerRadius(20)
-                    .overlay(Text("News Widget").foregroundColor(.white))
+            
+            // Row 2: 4 apps
+            HStack(spacing: 25) {
+                AppIcon(name: "Calculator", imageName: "calculator-icon")
+                AppIcon(name: "Birds", imageName: "birds-icon")
+                AppIcon(name: "Wallet", imageName: "wallet-icon")
+                AppIcon(name: "Contacts", imageName: "contacts-icon")
             }
-            .padding(.horizontal, 20)
+            
+            // Row 3: 2 apps (shifted right)
+            HStack(spacing: 25) {
+                Spacer()
+                AppIcon(name: "Netflix", imageName: "netflix-icon")
+                AppIcon(name: "Taxi", imageName: "taxi-icon")
+                Spacer()
+                Spacer()
+                Spacer()
+                Spacer()
+                Spacer()
 
-            // Placeholder for a larger widget
-            Rectangle()
-                .fill(Color.purple.opacity(0.7))
-                .frame(height: 155)
-                .cornerRadius(20)
-                .overlay(Text("Photos Widget").foregroundColor(.white))
-                .padding(.horizontal, 20)
+            }
         }
+        .padding(.horizontal, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Anchor content to the top
         .ignoresSafeArea(edges: .top) // Extend container to the top edge
     }
@@ -149,7 +148,7 @@ struct WeatherWidget: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white)
             
-            Text("56°")
+            Text("23°")
                 .font(.system(size: 42, weight: .thin))
                 .foregroundColor(.white)
             
