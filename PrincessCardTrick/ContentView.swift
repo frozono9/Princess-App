@@ -38,7 +38,7 @@ struct ContentView: View {
                 .offset(y: 20) // Offset widgets and apps downward
 
                 // Page 2: Widget Screen
-                WidgetScreenView()
+                WidgetScreenView(selectedAppName: $selectedAppName, showGridA: $showGridA)
                 .offset(y: 20) // Offset widgets downward
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -100,6 +100,29 @@ struct HomeScreenView: View {
 
 // MARK: - Widget Screen View
 struct WidgetScreenView: View {
+    @Binding var selectedAppName: String
+    @Binding var showGridA: Bool
+    
+    // Mapping from Grid A app names to their corresponding image names
+    let appImageMapping: [String: String] = [
+        "Instagram": "instagram-icon",
+        "Whatsapp": "whatsapp-icon",
+        "Memos": "memos-icon",
+        "Safari": "safari-icon",
+        "Clock": "clock-icon",
+        "News": "news-icon",
+        "Authenticator": "authenticator-icon",
+        "Calendar": "calendar-icon",
+        "Camera": "camera-icon",
+        "Messenger": "messenger-icon",
+        "Podcasts": "podcasts-icon",
+        "Reddit": "reddit-icon",
+        "Youtube": "youtube-icon",
+        "Maps": "maps-icon",
+        "ChatGPT": "chatgpt-icon",
+        "Revolut": "revolut-icon"
+    ]
+    
     var body: some View {
         VStack(spacing: 15) {
             // 10-app grid
@@ -129,7 +152,31 @@ struct WidgetScreenView: View {
                 Spacer()
                 Spacer()
                 Spacer()
-
+            }
+            
+            // Row 4: Empty row
+            HStack(spacing: 25) {
+                Color.clear.frame(width: 62, height: 62)
+                Color.clear.frame(width: 62, height: 62)
+                Color.clear.frame(width: 62, height: 62)
+                Color.clear.frame(width: 62, height: 62)
+            }
+            
+            // Row 5: 1 app (third column, fifth row position)
+            if !showGridA {
+                HStack(spacing: 25) {
+                    // Empty space for first column
+                    Color.clear.frame(width: 62, height: 62)
+                    // Empty space for second column  
+                    Color.clear.frame(width: 62, height: 62)
+                    // App in third column
+                    AppIcon(
+                        name: selectedAppName.isEmpty ? "Revolut" : selectedAppName,
+                        imageName: appImageMapping[selectedAppName] ?? "revolut-icon"
+                    )
+                    // Empty space for fourth column
+                    Color.clear.frame(width: 62, height: 62)
+                }
             }
         }
         .padding(.horizontal, 40)
