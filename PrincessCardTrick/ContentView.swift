@@ -13,54 +13,59 @@ struct ContentView: View {
     @State private var showHomeScreen = true
     @State private var showGridA = true // State to toggle between grids
     @State private var selectedAppName: String = "New York" // Holds the revealed app name
+    @State private var isFirstLaunch = !UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
 
     var body: some View {
-        ZStack {
-            // The background is applied here and set to ignore the safe area,
-            // so it extends to the screen edges without affecting the UI layout.
-            Image("background")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .ignoresSafeArea()
-            
-            Color.black.opacity(0.1)
-                .ignoresSafeArea()
+        if isFirstLaunch {
+            OnboardingView(isFirstLaunch: $isFirstLaunch)
+        } else {
+            ZStack {
+                // The background is applied here and set to ignore the safe area,
+                // so it extends to the screen edges without affecting the UI layout.
+                Image("background")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+                
+                Color.black.opacity(0.1)
+                    .ignoresSafeArea()
 
-            // TabView to allow swiping between the home screen and a widget screen
-            TabView {
-                // Page 1: Main Home Screen
-                HomeScreenView(
-                    showGridA: $showGridA,
-                    selectedAppName: $selectedAppName,
-                    enteredCode: $enteredCode,
-                    showHomeScreen: $showHomeScreen
-                )
-                .offset(y: 20) // Offset widgets and apps downward
+                // TabView to allow swiping between the home screen and a widget screen
+                TabView {
+                    // Page 1: Main Home Screen
+                    HomeScreenView(
+                        showGridA: $showGridA,
+                        selectedAppName: $selectedAppName,
+                        enteredCode: $enteredCode,
+                        showHomeScreen: $showHomeScreen
+                    )
+                    .offset(y: 20) // Offset widgets and apps downward
 
-                // Page 2: Widget Screen
-                WidgetScreenView(selectedAppName: $selectedAppName, showGridA: $showGridA)
-                .offset(y: 20) // Offset widgets downward
+                    // Page 2: Widget Screen
+                    WidgetScreenView(selectedAppName: $selectedAppName, showGridA: $showGridA)
+                    .offset(y: 20) // Offset widgets downward
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(maxHeight: .infinity, alignment: .top) // Ensure TabView is anchored at the top
+                .ignoresSafeArea(edges: .top) // Ensure TabView ignores safe area constraints
+                
+                // ONE static dock over everything
+                VStack {
+                    Spacer()
+                    DockView(
+                        enteredCode: $enteredCode,
+                        showHomeScreen: $showHomeScreen,
+                        showGridA: $showGridA,
+                        selectedAppName: $selectedAppName
+                    )
+                    .padding(.horizontal, 60)
+                    .padding(.bottom, 34) // Account for safe area at bottom
+                    .offset(y: -70) // Offset dock upward
+                }
+                .ignoresSafeArea(.container, edges: .bottom) // Extend into safe area
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(maxHeight: .infinity, alignment: .top) // Ensure TabView is anchored at the top
-            .ignoresSafeArea(edges: .top) // Ensure TabView ignores safe area constraints
-            
-            // ONE static dock over everything
-            VStack {
-                Spacer()
-                DockView(
-                    enteredCode: $enteredCode,
-                    showHomeScreen: $showHomeScreen,
-                    showGridA: $showGridA,
-                    selectedAppName: $selectedAppName
-                )
-                .padding(.horizontal, 60)
-                .padding(.bottom, 34) // Account for safe area at bottom
-                .offset(y: -70) // Offset dock upward
-            }
-            .ignoresSafeArea(.container, edges: .bottom) // Extend into safe area
+            .frame(maxHeight: .infinity, alignment: .top) // Ensure ZStack is anchored at the top
         }
-        .frame(maxHeight: .infinity, alignment: .top) // Ensure ZStack is anchored at the top
     }
 }
 
@@ -372,7 +377,12 @@ struct DockView: View {
             })
             AppIcon(name: "Mail", imageName: "mail-icon", isDock: true)
             AppIcon(name: "Messages", imageName: "messages-icon", isDock: true)
-            AppIcon(name: "Notes", imageName: "notes-icon", isDock: true)
+            AppIcon(name: "Notes", imageName: "notes-icon", isDock: true, action: {
+                // Open YouTube video
+                if let url = URL(string: "https://www.youtube.com/watch?v=dQw4w9WgXcQ") {
+                    UIApplication.shared.open(url)
+                }
+            })
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14) // Increased vertical padding for a taller background
@@ -517,6 +527,95 @@ struct GridBViews: View {
                 AppIcon(name: "CapCut", imageName: "capcut-icon", action: { selectedAppName = gridBtoAGuessMapping["CapCut"] ?? "" })
                 // The 4th app is gone, creating an empty space
                 Spacer().frame(width: 62, height: 62)
+            }
+        }
+    }
+}
+
+// MARK: - Onboarding Screen
+struct OnboardingView: View {
+    @Binding var isFirstLaunch: Bool
+    
+    var body: some View {
+        ZStack {
+            // Same background as main app
+            Image("background")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .ignoresSafeArea()
+            
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                Spacer()
+                
+                // Welcome message
+                VStack(spacing: 20) {                    
+                    Text("Welcome to")
+                        .font(.title)
+                        .foregroundColor(.white)
+                    
+                    Text("Princess Vanish")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Text("Tap the Notes app below to learn how to perform. This will always be available in the dock.")
+                        .font(.headline)
+                        .foregroundColor(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
+                
+                Spacer()
+                
+                // Arrow pointing to Notes app
+                VStack(spacing: 10) {
+                    Image(systemName: "arrow.down")
+                        .font(.system(size: 30))
+                        .foregroundColor(.white)
+                        .opacity(0.8)
+                    
+                    Text("Tap Here")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .opacity(0.8)
+                }
+                
+                // Only the Notes app in dock position
+                HStack(spacing: 25) {
+                    // Invisible spacers to center the Notes app
+                    Color.clear.frame(width: 65, height: 65)
+                    Color.clear.frame(width: 65, height: 65)
+                    Color.clear.frame(width: 65, height: 65)
+                    
+                    AppIcon(name: "Notes", imageName: "notes-icon", isDock: true, action: {
+                        // Open YouTube video and mark onboarding as complete
+                        if let url = URL(string: "https://youtu.be/ChytpkzLkBE") {
+                            UIApplication.shared.open(url)
+                        }
+                        
+                        // Mark that the user has launched the app before
+                        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+                        
+                        // Dismiss onboarding
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            isFirstLaunch = false
+                        }
+                    })
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 28)
+                        .fill(Color.black.opacity(0.2))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 28)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                )
+                .padding(.bottom, 100)
             }
         }
     }
