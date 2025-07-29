@@ -275,25 +275,35 @@ struct AppIcon: View {
     }
     
     var body: some View {
-        Button(action: {
-            action?()
-        }) {
-            VStack(spacing: 8) {
-                Image(imageName)
-                    .resizable()
-                    .frame(width: isDock ? 65 : 62, height: isDock ? 65 : 62)
-                    .cornerRadius(isDock ? 16 : 14)
-                
-                if !isDock {
-                    Text(name)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(1)
-                }
+        VStack(spacing: 8) {
+            Image(imageName)
+                .resizable()
+                .frame(width: isDock ? 65 : 62, height: isDock ? 65 : 62)
+                .cornerRadius(isDock ? 16 : 14)
+            
+            if !isDock {
+                Text(name)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
             }
         }
-        .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle()) // Make the entire area responsive to gestures
+        .onTapGesture {
+            action?()
+        }
+        .onDrag {
+            // Return a dummy drag item to enable drag detection
+            return NSItemProvider(object: name as NSString)
+        }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    // Trigger selection when drag gesture starts or continues over this icon
+                    action?()
+                }
+        )
     }
 }
 
